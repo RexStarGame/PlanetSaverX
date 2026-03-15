@@ -1,22 +1,28 @@
 using UnityEngine;
-using TMPro; // For TextMeshPro
-using UnityEngine.UI; // [NEW] Required for the Health Slider
+using UnityEngine.UI;
+using TMPro;
 
 public class Bomb : MonoBehaviour
 {
-    [Header("Timer og UI")]
-    public float countdownTime = 30f;
+    [Header("Udseende & Status")]
+    public Sprite activeBombSprite;
+    public SpriteRenderer spriteRenderer;
+    private bool isArmed = false;
+
+    [Header("Timer UI (Billede & Tekst)")]
+    public float maxCountdownTime = 30f;
+    private float countdownTime;
+    public Image timerFillImage;
     public TMP_Text timerText;
 
-    [Header("Liv og Defuse")]
+    [Header("Liv og Defuse (Kun Billede)")]
     public float maxHealth = 100f;
     private float currentHealth;
-    public Slider healthSlider;       // [NEW] Drag the UI Slider here
-    public Gradient healthColor;     // [NEW] Optional: Change color from Green to Red
-    public Image healthFillImage;    // [NEW] The 'Fill' image of the slider
+    public Image healthFillImage;
+    public Gradient healthColor;
 
     [Header("Effekter")]
-    public GameObject explosionEffectPrefab; // [NEW] Drag your Explosion Prefab (Particle System) here
+    public GameObject explosionEffectPrefab;
 
     [Header("Lyd")]
     public AudioSource audioSource;
@@ -26,28 +32,47 @@ public class Bomb : MonoBehaviour
     private bool isDefused = false;
     private bool hasExploded = false;
 
+    void Awake()
+    {
+        // [NYT] Sikrer, at vi altid har fat i SpriteRenderer, 
+        // selv hvis du har glemt at trække den ind i Inspectoren!
+        if (spriteRenderer == null)
+        {
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+    }
+
     void Start()
     {
+        countdownTime = maxCountdownTime;
         currentHealth = maxHealth;
 
-        // [NEW] Initialize Health Bar
-        if (healthSlider != null)
-        {
-            healthSlider.maxValue = maxHealth;
-            healthSlider.value = maxHealth;
-            UpdateHealthBarColor();
-        }
-
-        UpdateTimerText();
+        // Skjul bombens nedtællings-UI og tekst, mens den bliver plantet
+        if (timerFillImage != null) timerFillImage.gameObject.SetActive(false);
+        if (timerText != null) timerText.gameObject.SetActive(false);
+        if (healthFillImage != null) healthFillImage.gameObject.SetActive(false);
     }
 
     void Update()
     {
-        if (isDefused || hasExploded) return;
+        // Hvis bomben ikke er færdigplantet endnu, gør vi INGENTING
+        if (!isArmed || isDefused || hasExploded) return;
 
         countdownTime -= Time.deltaTime;
 
-        // Beep logic (last 10 seconds)
+        // Opdater billede-baren
+        if (timerFillImage != null)
+        {
+            timerFillImage.fillAmount = countdownTime / maxCountdownTime;
+        }
+
+        // Opdater tallene på skærmen
+        if (timerText != null)
+        {
+            timerText.text = Mathf.CeilToInt(countdownTime).ToString();
+        }
+
+        // Bip-logik
         if (countdownTime <= 10f && countdownTime > 0f)
         {
             if (Time.time >= nextBeepTime)
@@ -62,36 +87,38 @@ public class Bomb : MonoBehaviour
             countdownTime = 0f;
             Explode();
         }
-
-        UpdateTimerText();
     }
 
-    void UpdateTimerText()
+    // Denne funktion kaldes af PlayerBombPlanter, NØJAGTIGT når tiden (3.0f) rammes
+    public void ArmBomb()
     {
-        if (timerText != null)
+        isArmed = true;
+
+        // [VIGTIGT] Tvinger skiftet til din aktive pixel art sprite!
+        if (spriteRenderer != null && activeBombSprite != null)
         {
-            timerText.text = Mathf.Ceil(countdownTime).ToString();
+            spriteRenderer.sprite = activeBombSprite;
+            Debug.Log("Bomben er armeret! Billedet burde være skiftet nu."); // Lille tjek i din Console
         }
+        else
+        {
+            Debug.LogWarning("Manglende reference! Har du husket at trække 'Active Bomb Sprite' ind i Inspectoren?");
+        }
+
+        // Vis bombens egen UI (timer, defuse bar og tekst)
+        if (timerFillImage != null) timerFillImage.gameObject.SetActive(true);
+        if (timerText != null) timerText.gameObject.SetActive(true);
+        if (healthFillImage != null) healthFillImage.gameObject.SetActive(true);
+
+        UpdateHealthBarVisuals();
     }
 
-    // [NEW] Updates the slider value and visual color
     void UpdateHealthBarVisuals()
-    {
-        if (healthSlider != null)
-        {
-            healthSlider.value = currentHealth;
-            UpdateHealthBarColor();
-        }
-    }
-
-    // [NEW] Makes the bar go from Green (full) to Red (empty)
-    void UpdateHealthBarColor()
     {
         if (healthFillImage != null)
         {
-            // Calculate 0.0 to 1.0 value based on health
             float healthPercentage = currentHealth / maxHealth;
-            // Set color based on the Gradient defined in Inspector
+            healthFillImage.fillAmount = healthPercentage;
             healthFillImage.color = healthColor.Evaluate(healthPercentage);
         }
     }
@@ -106,16 +133,14 @@ public class Bomb : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        if (isDefused || hasExploded) return;
+        if (!isArmed || isDefused || hasExploded) return;
 
         currentHealth -= damage;
-
-        // [NEW] Update the UI immediately
         UpdateHealthBarVisuals();
 
         if (currentHealth <= 0)
         {
-            currentHealth = 0; // Don't go below zero
+            currentHealth = 0;
             DefuseBomb();
         }
     }
@@ -129,11 +154,9 @@ public class Bomb : MonoBehaviour
             timerText.color = Color.green;
             timerText.text = "DEFUSED";
         }
+        if (healthFillImage != null) healthFillImage.gameObject.SetActive(false);
+        if (timerFillImage != null) timerFillImage.gameObject.SetActive(false);
 
-        // Hide health bar when defused
-        if (healthSlider != null) healthSlider.gameObject.SetActive(false);
-
-        // Later: Add a defused sound or animation here
         Destroy(gameObject, 2f);
     }
 
@@ -146,23 +169,19 @@ public class Bomb : MonoBehaviour
             timerText.color = Color.red;
             timerText.text = "BOOM!";
         }
+        if (healthFillImage != null) healthFillImage.gameObject.SetActive(false);
+        if (timerFillImage != null) timerFillImage.gameObject.SetActive(false);
 
-        // Hide health bar during explosion
-        if (healthSlider != null) healthSlider.gameObject.SetActive(false);
-
-        // [NEW] Spawn the Explosion Effect
         if (explosionEffectPrefab != null)
         {
-            // Instantiate the prefab at the bomb's position
             GameObject explosion = Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
-
-            // If it's a Particle System, make sure the Prefab is set to "Stop Action: Destroy"
-            // or destroy it via script after a set time:
             Destroy(explosion, 3f);
         }
 
-        // Hide the bomb mesh so it looks like it's gone, but keep script running for a moment if needed
-        GetComponent<SpriteRenderer>().enabled = false;
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = false; // Gem selve bomben, når den sprænger
+        }
 
         Destroy(gameObject, 0.5f);
     }

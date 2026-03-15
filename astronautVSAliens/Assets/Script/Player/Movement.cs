@@ -23,14 +23,15 @@ public class LowGravity2D : MonoBehaviour
         // Movement
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
-        // Flip character
         if (move > 0)
         {
-            transform.localScale = new Vector3(5, 5, 5);
+            // Bevarer den nuværende højde og dybde, men sikrer at X er positiv
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
         else if (move < 0)
         {
-            transform.localScale = new Vector3(-5, 5, 5);
+            // Bevarer den nuværende højde og dybde, men sikrer at X er negativ
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
 
         // Jump
