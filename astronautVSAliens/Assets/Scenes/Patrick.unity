@@ -721,6 +721,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   jumpForce: 4
+  facingRight: 1
+  arm: {fileID: 0}
 --- !u!114 &1065521909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -835,6 +837,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1220171402}
   - component: {fileID: 1220171403}
+  - component: {fileID: 1220171404}
   m_Layer: 0
   m_Name: Astronaut-4.png (1)_0
   m_TagString: Untagged
@@ -851,7 +854,7 @@ Transform:
   m_GameObject: {fileID: 1220171401}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.14917994, y: -0.029381871, z: 0}
+  m_LocalPosition: {x: 0.01, y: -0.029381871, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -900,7 +903,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -5394198345929887674, guid: b37aec48cf4dd6f46aa0d0b2390752ed, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -912,6 +915,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1220171404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1220171401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7ce7523296dafd46b065f045a8fd3fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 1220171402}
+  facingRight: 1
 --- !u!1 &1297371287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1271,6 +1288,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bomb
       objectReference: {fileID: 0}
+    - target: {fileID: 3072784869890908965, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4139855470586757959, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.387
@@ -1311,10 +1332,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4227242001573710265, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
-      propertyPath: activeBombSprite
-      value: 
-      objectReference: {fileID: -8830674336629673496, guid: 9ee4c8559265a7c438cd1fef02c23b60, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
