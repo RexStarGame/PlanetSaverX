@@ -8,10 +8,11 @@ public class PlayerBombPlanter : MonoBehaviour
 
     [Header("Bomb Reference")]
     public GameObject bombPrefab;
+
     private GameObject spawnedBomb;
     private BombVisuals bombVisualsScript;
+    private Bomb activeBombLogic;
 
-    // Status variabler
     private bool isInPlantZone = false;
     private bool isBombFullyPlanted = false;
     private Transform plantLocation;
@@ -20,53 +21,47 @@ public class PlayerBombPlanter : MonoBehaviour
     {
         if (isBombFullyPlanted) return;
 
-        // Tjekker om spilleren er i zonen OG holder E inde
         if (isInPlantZone && Input.GetKey(KeyCode.E))
         {
-            // 1. KUN ÉN BOMBE. Spawner den allerførste gang E trykkes.
             if (spawnedBomb == null)
             {
                 spawnedBomb = Instantiate(bombPrefab, plantLocation.position, Quaternion.identity);
-                bombVisualsScript = spawnedBomb.GetComponent<BombVisuals>();
-            }
 
-            // 2. VIS BOMBE UI & ØG PROGRESSION
-            if (bombVisualsScript != null)
-            {
-                bombVisualsScript.ShowPlantingUI(); // Sørg for at den vises, mens vi holder E
+                // Finder scripts både på root og children
+                bombVisualsScript = spawnedBomb.GetComponentInChildren<BombVisuals>(true);
+                activeBombLogic = spawnedBomb.GetComponentInChildren<Bomb>(true);
+
+                if (bombVisualsScript == null)
+                    Debug.LogError("Kunne ikke finde BombVisuals på bomben.");
+
+                if (activeBombLogic == null)
+                    Debug.LogError("Kunne ikke finde Bomb på bomben.");
             }
 
             currentProgress += Time.deltaTime;
-            float progressPercent = currentProgress / timeToPlant;
+            float progressPercent = Mathf.Clamp01(currentProgress / timeToPlant);
 
-            // 3. OPDATER UI IMAGE PÅ BOMBEN
             if (bombVisualsScript != null)
             {
+                bombVisualsScript.ShowPlantingUI();
                 bombVisualsScript.UpdateVisuals(progressPercent);
             }
 
-            // 4. ER VI FÆRDIGE?
             if (currentProgress >= timeToPlant)
             {
+                currentProgress = timeToPlant;
                 isBombFullyPlanted = true;
 
                 if (bombVisualsScript != null)
-                {
-                    bombVisualsScript.HidePlantingUI(); // Skjul baren når vi er færdige
-                }
+                    bombVisualsScript.HidePlantingUI();
 
-                // Hent Bomb-scriptet og armér bomben
-                Bomb activeBombLogic = spawnedBomb.GetComponent<Bomb>();
                 if (activeBombLogic != null)
-                {
                     activeBombLogic.ArmBomb();
-                }
             }
         }
         else
         {
-            // Hvis spilleren slipper 'E' (og bomben findes), skjul dens UI
-            if (spawnedBomb != null && bombVisualsScript != null)
+            if (spawnedBomb != null && !isBombFullyPlanted && bombVisualsScript != null)
             {
                 bombVisualsScript.HidePlantingUI();
             }
