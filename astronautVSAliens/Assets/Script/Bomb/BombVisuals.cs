@@ -1,51 +1,57 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class BombVisuals : MonoBehaviour
 {
-    private Image plantingProgressBar;
-    private GameObject plantingUIContainer;
+    [Header("Planting Bar")]
+    // Brug den SAMME image som senere bliver health bar
+    public Image plantingFillImage;
 
-    void Awake()
-    {
-        // 1. Vi henter Bomb-scriptet, som allerede sidder på denne samme bombe
-        Bomb bombScript = GetComponent<Bomb>();
+    [Header("Valgfri elementer under planting")]
+    public Image plantingBackgroundImage;
 
-        // 2. Vi spørger: "Hey Bomb, må jeg låne din timerFillImage?"
-        if (bombScript != null && bombScript.timerFillImage != null)
-        {
-            // NU er vi 100% sikre på, at begge scripts bruger PRÆCIS det samme billede!
-            plantingProgressBar = bombScript.timerFillImage;
-
-            // Vi finder også det Canvas (forælderen), den ligger i, så vi kan tænde/slukke
-            plantingUIContainer = plantingProgressBar.transform.parent.gameObject;
-        }
-    }
-
-    void Start()
-    {
-        // Skjuler baren fra start, så den er klar til at playeren trykker 'E'
-        HidePlantingUI();
-    }
+    // Denne tekst skal skjules mens man loader bomben
+    public TMP_Text countdownTextToHide;
 
     public void ShowPlantingUI()
     {
-        if (plantingUIContainer != null) plantingUIContainer.SetActive(true);
-        else if (plantingProgressBar != null) plantingProgressBar.gameObject.SetActive(true);
+        if (plantingFillImage != null)
+        {
+            plantingFillImage.enabled = true;
+        }
+
+        if (plantingBackgroundImage != null)
+        {
+            plantingBackgroundImage.enabled = true;
+        }
+
+        // Skjul countdown tekst mens vi planter
+        if (countdownTextToHide != null)
+        {
+            countdownTextToHide.enabled = false;
+        }
     }
 
     public void HidePlantingUI()
     {
-        if (plantingUIContainer != null) plantingUIContainer.SetActive(false);
-        else if (plantingProgressBar != null) plantingProgressBar.gameObject.SetActive(false);
+        // Vi skjuler IKKE selve canvas
+        // Vi skjuler kun planting-udseendet
+        if (plantingBackgroundImage != null)
+        {
+            plantingBackgroundImage.enabled = false;
+        }
+
+        // Vi skjuler ikke plantingFillImage her permanent,
+        // fordi Bomb.cs lige bagefter bruger samme image som health bar.
+        // Derfor lader vi den være enabled.
     }
 
     public void UpdateVisuals(float progressPercent)
     {
-        if (plantingProgressBar != null)
+        if (plantingFillImage != null)
         {
-            // Her fylder vi baren fra 0 til 1 (0% til 100%)
-            plantingProgressBar.fillAmount = progressPercent;
+            plantingFillImage.fillAmount = Mathf.Clamp01(progressPercent);
         }
     }
 }

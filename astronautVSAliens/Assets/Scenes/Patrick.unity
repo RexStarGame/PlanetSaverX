@@ -719,8 +719,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240bdd57359f3d24aa53f0b832d4efed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 1
-  jumpForce: 1
+  moveSpeed: 2
+  jumpForce: 4
 --- !u!114 &1065521909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -747,6 +747,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56ba80c81e875624e9ed91dcd3db1cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  plantingFillImage: {fileID: 0}
+  plantingBackgroundImage: {fileID: 0}
+  countdownTextToHide: {fileID: 0}
 --- !u!1 &1093008358
 GameObject:
   m_ObjectHideFlags: 0
@@ -1308,9 +1311,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4227242001573710265, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
+      propertyPath: activeBombSprite
+      value: 
+      objectReference: {fileID: -8830674336629673496, guid: 9ee4c8559265a7c438cd1fef02c23b60, type: 3}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 6705909481460383070, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}

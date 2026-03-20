@@ -148,6 +148,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56ba80c81e875624e9ed91dcd3db1cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  plantingFillImage: {fileID: 1848672739007241511}
+  plantingBackgroundImage: {fileID: 0}
+  countdownTextToHide: {fileID: 3943997490253454134}
 --- !u!1 &4549864624602048541
 GameObject:
   m_ObjectHideFlags: 0
@@ -160,7 +163,11 @@ GameObject:
   - component: {fileID: 8204662244326742897}
   - component: {fileID: 3771429820118701902}
   - component: {fileID: 1490891168601299050}
+
   - component: {fileID: 8221708953946487469}
+
+  - component: {fileID: 4227242001573710265}
+3c5680574833c9cfec2731d390752735c76be7db
   m_Layer: 0
   m_Name: Canvas-Bomb
   m_TagString: Untagged
@@ -252,7 +259,11 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+
 --- !u!114 &8221708953946487469
+
+--- !u!114 &4227242001573710265
+ 3c5680574833c9cfec2731d390752735c76be7db
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -264,7 +275,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6da3e8fcd9a52d40a5f26b6b8074552, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+
   activeBombSprite: {fileID: -8830674336629673496, guid: 9ee4c8559265a7c438cd1fef02c23b60, type: 3}
+
+  activeBombSprite: {fileID: 0}
+3c5680574833c9cfec2731d390752735c76be7db
   spriteRenderer: {fileID: 6210377231160206107}
   maxCountdownTime: 30
   timerFillImage: {fileID: 0}
