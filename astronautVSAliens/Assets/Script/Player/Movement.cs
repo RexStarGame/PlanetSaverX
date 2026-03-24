@@ -6,7 +6,7 @@ public class Movement : MonoBehaviour
     public float jumpForce = 8f;
 
     public bool facingRight = true;
-    public Transform arm; // Assign the arm sprite here
+    public Transform arm;
 
     private Rigidbody2D rb;
     private bool isGrounded;
@@ -19,26 +19,36 @@ public class Movement : MonoBehaviour
 
     void Update()
     {
-        // Player movement
         float move = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
-        // Flip player sprite based on movement
-        if (move > 0 && !facingRight) Flip(true);
-        else if (move < 0 && facingRight) Flip(false);
+        // Spilleren vender nu efter musen - ikke efter movement
+        FaceMouseSide();
 
         if (Input.GetButtonDown("Jump") && isGrounded)
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
 
-        // Rotate arm to follow mouse
         AimArmAtMouse();
+    }
+
+    void FaceMouseSide()
+    {
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip(true);
+        }
+        else if (mousePos.x < transform.position.x && facingRight)
+        {
+            Flip(false);
+        }
     }
 
     void Flip(bool faceRight)
     {
         facingRight = faceRight;
 
-        // Flip player horizontally
         Vector3 scale = transform.localScale;
         scale.x = facingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
@@ -51,33 +61,33 @@ public class Movement : MonoBehaviour
         Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         mousePos.z = 0f;
 
-        // Direction from the arm's pivot to the mouse
-        Vector3 direction = mousePos - arm.position;
-
-        // Angle in degrees for the arm's rotation
+        Vector2 direction = mousePos - arm.position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-        // Apply rotation to the arm
-        arm.rotation = Quaternion.Euler(0f, 0f, angle);
-
-        // Determine if the arm sprite should flip based on its local rotation
-        // This makes the arm sprite flip only when it's naturally pointing behind the player
-        // The angle check is more robust than just direction.x
-        bool armShouldFlipSprite = (angle > 90f && angle <= 180f) || (angle < -90f && angle >= -180f);
-
-        // This ensures the arm sprite is oriented correctly for the player's facing direction
-        // For example, if 'facingRight' is true, and the arm points left (behind), flip it.
-        // If 'facingRight' is false, and the arm points right (behind), flip it.
-        Vector3 currentArmLocalScale = arm.localScale;
         if (facingRight)
         {
-            currentArmLocalScale.x = (armShouldFlipSprite) ? -1f : 1f;
+            // Kun foran spilleren mod højre
+            angle = Mathf.Clamp(angle, -90f, 90f);
+            arm.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            Vector3 armScale = arm.localScale;
+            armScale.y = Mathf.Abs(armScale.y);
+            arm.localScale = armScale;
         }
-        else // Player is facing left
+        else
         {
-            currentArmLocalScale.x = (armShouldFlipSprite) ? 1f : -1f;
+            // Kun foran spilleren mod venstre
+            if (angle > 0f)
+                angle = Mathf.Clamp(angle, 90f, 180f);
+            else
+                angle = Mathf.Clamp(angle, -180f, -90f);
+
+            arm.rotation = Quaternion.Euler(0f, 0f, angle);
+
+            Vector3 armScale = arm.localScale;
+            armScale.y = -Mathf.Abs(armScale.y);
+            arm.localScale = armScale;
         }
-        arm.localScale = currentArmLocalScale;
     }
 
     void OnCollisionEnter2D(Collision2D collision)

@@ -2,26 +2,29 @@ using UnityEngine;
 
 public class ArmAim : MonoBehaviour
 {
-    public Transform player;          // Reference to the player
-    public bool facingRight = true;   // Keep in sync with your player script
+    public Transform player; // Parent/player som armen er child af
 
     void Update()
     {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 direction = mousePos - player.position;
-        direction.z = 0f;
+        if (player == null || Camera.main == null) return;
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Vector3 mouseWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorld.z = 0f;
 
-        if (facingRight)
-        {
-            // Normal rotation
-            transform.rotation = Quaternion.Euler(0f, 0f, angle);
-        }
-        else
-        {
-            // Flip for left side
-            transform.rotation = Quaternion.Euler(180f, 0f, -angle);
-        }
+        // Konverter musens position til playerens lokale rum
+        // Så følger aim automatisk player flip
+        Vector3 localMouse = player.InverseTransformPoint(mouseWorld);
+
+        // Retning fra armens lokale position til musen i playerens lokale rum
+        Vector3 localDirection = localMouse - transform.localPosition;
+        localDirection.z = 0f;
+
+        float angle = Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg;
+
+        // 180 graders aim foran karakteren
+        angle = Mathf.Clamp(angle, -90f, 90f);
+
+        // VIGTIGT: localRotation, ikke world rotation
+        transform.localRotation = Quaternion.Euler(0f, 0f, angle);
     }
 }

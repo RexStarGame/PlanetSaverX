@@ -722,7 +722,7 @@ MonoBehaviour:
   moveSpeed: 2
   jumpForce: 4
   facingRight: 1
-  arm: {fileID: 0}
+  arm: {fileID: 1220171402}
 --- !u!114 &1065521909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -839,7 +839,7 @@ GameObject:
   - component: {fileID: 1220171403}
   - component: {fileID: 1220171404}
   m_Layer: 0
-  m_Name: Astronaut-4.png (1)_0
+  m_Name: Arm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -928,7 +928,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1220171402}
-  facingRight: 1
 --- !u!1 &1297371287
 GameObject:
   m_ObjectHideFlags: 0
