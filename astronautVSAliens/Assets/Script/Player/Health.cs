@@ -16,20 +16,16 @@ public class HealthBar : MonoBehaviour
         UpdateHealthBar();
     }
 
-    void Update()
-    {
-        // Example: press space to take damage
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TakeDamage(10f);
-        }
-    }
-
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
         UpdateHealthBar();
+
+        if (currentHealth <= 0f)
+        {
+            Die();
+        }
     }
 
     public void Heal(float amount)
@@ -43,5 +39,11 @@ public class HealthBar : MonoBehaviour
     {
         float fillValue = currentHealth / maxHealth;
         healthBarImage.fillAmount = fillValue;
+    }
+
+    void Die()
+    {
+        Debug.Log("Player died!");
+        // Add death logic here (disable movement, play animation, etc.)
     }
 }
