@@ -720,10 +720,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 240bdd57359f3d24aa53f0b832d4efed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 2
+  moveSpeed: 2.5
   jumpForce: 4
-  facingRight: 1
-  arm: {fileID: 0}
+  arm: {fileID: 1220171402}
+  minAngle: -45
+  maxAngle: 45
+  isGrounded: 0
 --- !u!114 &1065521909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,7 +855,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1220171402}
   - component: {fileID: 1220171403}
-  - component: {fileID: 1220171404}
   m_Layer: 0
   m_Name: Arm
   m_TagString: Untagged
@@ -931,20 +932,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1220171404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1220171401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7ce7523296dafd46b065f045a8fd3fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 1065521905}
-  facingRight: 1
 --- !u!1 &1297371287
 GameObject:
   m_ObjectHideFlags: 0
@@ -1345,6 +1332,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1211967310967304165, guid: 6a8d612983d44f147b7de880f4f14c03, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 6200000, guid: bce615549c67a244f98e6646eba4756b, type: 2}
     - target: {fileID: 1403656853907016768, guid: 6a8d612983d44f147b7de880f4f14c03, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.003
@@ -1389,6 +1380,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1065521905}
+    - target: {fileID: 1830617734999830465, guid: 6a8d612983d44f147b7de880f4f14c03, type: 3}
+      propertyPath: moveSpeed
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4758206350585297181, guid: 6a8d612983d44f147b7de880f4f14c03, type: 3}
       propertyPath: m_Name
       value: Enemy

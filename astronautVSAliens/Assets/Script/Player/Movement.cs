@@ -14,14 +14,13 @@ public class PlayerController : MonoBehaviour
     public float maxAngle = 45f;
 
     private Rigidbody2D rb;
-    private bool isGrounded;
+    public bool isGrounded;
     private bool facingRight = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         // Sørg for at tyngdekraften føles god
-        rb.gravityScale = 1.5f;
     }
 
     void Update()

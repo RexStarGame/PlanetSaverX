@@ -24,9 +24,14 @@ public class EnemyBehavior : MonoBehaviour
     private Collider2D hitbox;
     private HealthBar playerHealth;
 
+    private Rigidbody2D rb;
+    private bool playerInHitbox = false;
+    private bool playerOnTop = false; // NEW
+
     void Start()
     {
         startPosition = transform.position;
+        rb = GetComponent<Rigidbody2D>();
 
         if (player != null)
         {
@@ -44,7 +49,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No child named 'Hitbox' found. Please create a child GameObject called 'Hitbox' with a 2D trigger collider.");
+            Debug.LogError("No child named 'Hitbox' found. Please create one with a 2D trigger collider.");
         }
 
         PickNewRoamTarget();
@@ -54,12 +59,20 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        // STOP movement if player is on top
+        if (playerOnTop)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
 
-        // Only move toward player if outside stopping distance
+        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float heightDifference = Mathf.Abs(player.position.y - transform.position.y);
+
+        // Chase player
         if (distanceToPlayer <= detectionRange)
         {
-            if (distanceToPlayer > stoppingDistance)
+            if (distanceToPlayer > stoppingDistance && heightDifference < 1.0f)
             {
                 Vector3 targetPosition = new Vector3(player.position.x, transform.position.y, transform.position.z);
                 MoveTowards(targetPosition);
@@ -67,7 +80,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         else
         {
-            // Roaming horizontally
+            // Roaming
             float distanceToRoamTarget = Vector3.Distance(transform.position, roamTarget);
 
             if (distanceToRoamTarget < 0.2f || Time.time - lastRoamTime >= roamDelay)
@@ -80,28 +93,41 @@ public class EnemyBehavior : MonoBehaviour
                 MoveTowards(targetPosition);
             }
         }
+
+        // Attack logic
+        if (playerInHitbox && Time.time - lastAttackTime >= attackCooldown)
+        {
+            Attack();
+            lastAttackTime = Time.time;
+        }
     }
 
     private void MoveTowards(Vector3 target)
     {
-        Vector3 direction = (target - transform.position).normalized;
-        transform.position += direction * moveSpeed * Time.deltaTime;
+        Vector2 direction = (target - transform.position).normalized;
+        rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
     }
 
     private void PickNewRoamTarget()
     {
-        // Only pick a horizontal offset
         float randomX = Random.Range(-roamRadius, roamRadius);
         roamTarget = new Vector3(startPosition.x + randomX, transform.position.y, transform.position.z);
         lastRoamTime = Time.time;
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        if (hitbox != null && other == player.GetComponent<Collider2D>() && Time.time - lastAttackTime >= attackCooldown)
+        if (other.CompareTag("Player"))
         {
-            Attack();
-            lastAttackTime = Time.time;
+            playerInHitbox = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            playerInHitbox = false;
         }
     }
 
@@ -111,6 +137,31 @@ public class EnemyBehavior : MonoBehaviour
         {
             playerHealth.TakeDamage(damage);
             Debug.Log("Enemy attacked player for " + damage + " damage!");
+        }
+    }
+
+    // --- NEW: Detect player standing on top ---
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            foreach (ContactPoint2D contact in collision.contacts)
+            {
+                if (contact.normal.y < -0.5f)
+                {
+                    playerOnTop = true;
+                    return;
+                }
+            }
+        }
+        playerOnTop = false;
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            playerOnTop = false;
         }
     }
 }
