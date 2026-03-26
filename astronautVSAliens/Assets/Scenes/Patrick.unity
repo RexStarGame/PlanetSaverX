@@ -721,8 +721,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 2
   jumpForce: 4
-  facingRight: 1
   arm: {fileID: 1220171402}
+  minAngle: -45
+  maxAngle: 45
 --- !u!114 &1065521909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -837,7 +838,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1220171402}
   - component: {fileID: 1220171403}
-  - component: {fileID: 1220171404}
   m_Layer: 0
   m_Name: Arm
   m_TagString: Untagged
@@ -915,19 +915,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &1220171404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1220171401}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7ce7523296dafd46b065f045a8fd3fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 1220171402}
 --- !u!1 &1297371287
 GameObject:
   m_ObjectHideFlags: 0

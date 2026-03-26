@@ -1,96 +1,89 @@
 using UnityEngine;
 
-public class Movement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
+    [Header("Bevægelse")]
     public float moveSpeed = 6f;
     public float jumpForce = 8f;
 
-    public bool facingRight = true;
-    public Transform arm;
+    [Header("Referencer")]
+    public Transform arm; // Træk din arm-child herind i Inspectoren
+
+    [Header("Aim Indstillinger")]
+    public float minAngle = -45f; // Laveste punkt (90 grader i alt hvis -45 til 45)
+    public float maxAngle = 45f;
 
     private Rigidbody2D rb;
     private bool isGrounded;
+    private bool facingRight = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = 0.5f;
+        // Sørg for at tyngdekraften føles god
+        rb.gravityScale = 1.5f;
     }
 
     void Update()
     {
+        // 1. Horisontal bevægelse
         float move = Input.GetAxis("Horizontal");
         rb.linearVelocity = new Vector2(move * moveSpeed, rb.linearVelocity.y);
 
-        // Spilleren vender nu efter musen - ikke efter movement
-        FaceMouseSide();
-
+        // 2. Hop
         if (Input.GetButtonDown("Jump") && isGrounded)
+        {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+        }
 
-        AimArmAtMouse();
+        // 3. Aim og Flip (Samlet her for at undgå fejl)
+        HandleAimAndRotation();
     }
 
-    void FaceMouseSide()
+    void HandleAimAndRotation()
     {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        if (arm == null) return;
 
-        if (mousePos.x > transform.position.x && !facingRight)
-        {
-            Flip(true);
-        }
-        else if (mousePos.x < transform.position.x && facingRight)
+        // Find musens position
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        mousePos.z = 0f;
+
+        // --- FLIP KROPPEN ---
+        // Vi tjekker om musen er til højre eller venstre for spilleren
+        if (mousePos.x < transform.position.x && facingRight)
         {
             Flip(false);
         }
+        else if (mousePos.x > transform.position.x && !facingRight)
+        {
+            Flip(true);
+        }
+
+        // --- ROTER ARMEN ---
+        // Vi bruger InverseTransformPoint for at finde musen relativt til spilleren
+        // Det gør at 'angle' altid regnes ud fra den vej spilleren kigger
+        Vector3 localMouse = transform.InverseTransformPoint(mousePos);
+        Vector2 direction = (Vector2)localMouse - (Vector2)arm.localPosition;
+
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+
+        // Her låser vi armen til din 90 graders bue foran spilleren
+        angle = Mathf.Clamp(angle, minAngle, maxAngle);
+
+        // Vi sætter LOCAL rotation, så den følger spillerens flip automatisk
+        arm.localRotation = Quaternion.Euler(0f, 0f, angle);
     }
 
     void Flip(bool faceRight)
     {
         facingRight = faceRight;
-
         Vector3 scale = transform.localScale;
-        scale.x = facingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+        scale.x = faceRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
         transform.localScale = scale;
     }
 
-    void AimArmAtMouse()
-    {
-        if (arm == null) return;
-
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        mousePos.z = 0f;
-
-        Vector2 direction = mousePos - arm.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-        if (facingRight)
-        {
-            // Kun foran spilleren mod højre
-            angle = Mathf.Clamp(angle, -90f, 90f);
-            arm.rotation = Quaternion.Euler(0f, 0f, angle);
-
-            Vector3 armScale = arm.localScale;
-            armScale.y = Mathf.Abs(armScale.y);
-            arm.localScale = armScale;
-        }
-        else
-        {
-            // Kun foran spilleren mod venstre
-            if (angle > 0f)
-                angle = Mathf.Clamp(angle, 90f, 180f);
-            else
-                angle = Mathf.Clamp(angle, -180f, -90f);
-
-            arm.rotation = Quaternion.Euler(0f, 0f, angle);
-
-            Vector3 armScale = arm.localScale;
-            armScale.y = -Mathf.Abs(armScale.y);
-            arm.localScale = armScale;
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
+    // Tjekker om vi rører jorden
+    void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
             isGrounded = true;
