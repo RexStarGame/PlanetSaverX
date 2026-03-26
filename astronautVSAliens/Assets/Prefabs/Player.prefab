@@ -104,6 +104,10 @@ MonoBehaviour:
   bulletPrefab: {fileID: 531936074702725989, guid: d222cf9bd2d2bec4cba86505ae2fbfba, type: 3}
   shootPoint: {fileID: 5223581460076502457}
   fireRate: 0.2
+  maxAmmo: 10
+  reloadTime: 1.5
+  autoReloadDelay: 1
+  ammoBar: {fileID: 0}
 --- !u!1 &6419878730832501831
 GameObject:
   m_ObjectHideFlags: 0
@@ -136,7 +140,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.67, y: 0.243, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6623337786465047427}
@@ -212,7 +216,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0.5
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -287,6 +291,7 @@ MonoBehaviour:
   arm: {fileID: 6623337786465047427}
   minAngle: -45
   maxAngle: 45
+  isGrounded: 0
 --- !u!114 &4646389314549709625
 MonoBehaviour:
   m_ObjectHideFlags: 0
