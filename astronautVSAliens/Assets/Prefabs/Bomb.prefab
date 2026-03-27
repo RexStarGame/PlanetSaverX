@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 6210377231160206107}
   - component: {fileID: 1962988829876317310}
   - component: {fileID: 8559472640544901807}
+  - component: {fileID: -3225647740989538415}
   m_Layer: 0
   m_Name: Bomb
-  m_TagString: Untagged
+  m_TagString: Bomb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -134,7 +135,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.7699999, y: 1.54}
   m_EdgeRadius: 0
 --- !u!114 &8559472640544901807
 MonoBehaviour:
@@ -151,6 +152,33 @@ MonoBehaviour:
   plantingFillImage: {fileID: 8561944783625078254}
   plantingBackgroundImage: {fileID: 0}
   countdownTextToHide: {fileID: 5116974798533157382}
+--- !u!50 &-3225647740989538415
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3072784869890908965}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1000
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &4203486889635408635
 GameObject:
   m_ObjectHideFlags: 0

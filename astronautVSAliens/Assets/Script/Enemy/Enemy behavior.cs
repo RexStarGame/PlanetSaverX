@@ -1,20 +1,30 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnemyBehavior : MonoBehaviour
 {
-    [Header("Player Settings")]
+    [Header("Targets")]
     public Transform player;
+    public Transform bomb;
+
+    [Header("Detection Settings")]
     public float detectionRange = 10f;
     public float stoppingDistance = 1.5f;
 
+    [Header("Distance Settings")]
+    public float bombStoppingDistance = 2.5f;
+
     [Header("Movement Settings")]
     public float moveSpeed = 3f;
+    public float bombMoveSpeed = 1.5f;
     public float roamRadius = 5f;
     public float roamDelay = 2f;
 
     [Header("Combat Settings")]
     public int damage = 10;
     public float attackCooldown = 1f;
+
+    [Header("Bomb Settings")]
+    public string bombTag = "Bomb";
 
     private Vector3 startPosition;
     private Vector3 roamTarget;
@@ -26,7 +36,11 @@ public class EnemyBehavior : MonoBehaviour
 
     private Rigidbody2D rb;
     private bool playerInHitbox = false;
-    private bool playerOnTop = false; // NEW
+    private bool playerOnTop = false;
+
+    private bool targetingBomb = false;
+    private float bombCheckTimer = 0f;
+    private float bombCheckInterval = 0.5f;
 
     void Start()
     {
@@ -36,51 +50,78 @@ public class EnemyBehavior : MonoBehaviour
         if (player != null)
         {
             playerHealth = player.GetComponent<HealthBar>();
-            if (playerHealth == null)
-                Debug.LogError("Player does not have a HealthBar component!");
         }
 
         Transform hitboxTransform = transform.Find("Hitbox");
         if (hitboxTransform != null)
         {
             hitbox = hitboxTransform.GetComponent<Collider2D>();
-            if (hitbox == null)
-                Debug.LogError("Hitbox object found but has no 2D Collider component!");
-        }
-        else
-        {
-            Debug.LogError("No child named 'Hitbox' found. Please create one with a 2D trigger collider.");
         }
 
         PickNewRoamTarget();
+
+        // Try to find bomb if it already exists in scene
+        FindBomb();
     }
 
     void Update()
     {
         if (player == null) return;
 
-        // STOP movement if player is on top
+        // Continuously look for bomb if we don't have one or if it's inactive
+        if (bomb == null || !bomb.gameObject.activeInHierarchy)
+        {
+            bombCheckTimer += Time.deltaTime;
+            if (bombCheckTimer >= bombCheckInterval)
+            {
+                bombCheckTimer = 0f;
+                FindBomb();
+            }
+        }
+
+        // Stop if player is on top
         if (playerOnTop)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             return;
         }
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-        float heightDifference = Mathf.Abs(player.position.y - transform.position.y);
+        // Target selection
+        targetingBomb = false;
 
-        // Chase player
-        if (distanceToPlayer <= detectionRange)
+        if (bomb != null && bomb.gameObject.activeInHierarchy)
         {
-            if (distanceToPlayer > stoppingDistance && heightDifference < 1.0f)
+            float distToPlayer = Vector3.Distance(transform.position, player.position);
+            float distToBomb = Vector3.Distance(transform.position, bomb.position);
+
+            if (distToBomb < distToPlayer)
             {
-                Vector3 targetPosition = new Vector3(player.position.x, transform.position.y, transform.position.z);
-                MoveTowards(targetPosition);
+                targetingBomb = true;
+            }
+        }
+
+        // Set current target and speed
+        Transform currentTarget = targetingBomb ? bomb : player;
+        float currentSpeed = targetingBomb ? bombMoveSpeed : moveSpeed;
+        float currentStoppingDistance = targetingBomb ? bombStoppingDistance : stoppingDistance;
+
+        float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
+
+        // Chase or roam
+        if (distanceToTarget <= detectionRange)
+        {
+            if (distanceToTarget > currentStoppingDistance)
+            {
+                Vector3 targetPosition = new Vector3(currentTarget.position.x, transform.position.y, transform.position.z);
+                MoveTowards(targetPosition, currentSpeed);
+            }
+            else
+            {
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             }
         }
         else
         {
-            // Roaming
             float distanceToRoamTarget = Vector3.Distance(transform.position, roamTarget);
 
             if (distanceToRoamTarget < 0.2f || Time.time - lastRoamTime >= roamDelay)
@@ -90,22 +131,32 @@ public class EnemyBehavior : MonoBehaviour
             else
             {
                 Vector3 targetPosition = new Vector3(roamTarget.x, transform.position.y, transform.position.z);
-                MoveTowards(targetPosition);
+                MoveTowards(targetPosition, moveSpeed);
             }
         }
 
-        // Attack logic
-        if (playerInHitbox && Time.time - lastAttackTime >= attackCooldown)
+        // Attack player only when not targeting bomb
+        if (!targetingBomb && playerInHitbox && Time.time - lastAttackTime >= attackCooldown)
         {
             Attack();
             lastAttackTime = Time.time;
         }
     }
 
-    private void MoveTowards(Vector3 target)
+    private void FindBomb()
     {
-        Vector2 direction = (target - transform.position).normalized;
-        rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+        GameObject bombObject = GameObject.FindGameObjectWithTag(bombTag);
+        if (bombObject != null)
+        {
+            bomb = bombObject.transform;
+            Debug.Log("Enemy found bomb with tag: " + bombTag);
+        }
+    }
+
+    private void MoveTowards(Vector3 target, float speed)
+    {
+        float directionX = Mathf.Sign(target.x - transform.position.x);
+        rb.linearVelocity = new Vector2(directionX * speed, rb.linearVelocity.y);
     }
 
     private void PickNewRoamTarget()
@@ -140,7 +191,6 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    // --- NEW: Detect player standing on top ---
     private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
