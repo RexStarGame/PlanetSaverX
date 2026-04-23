@@ -218,7 +218,16 @@ public class EnemyBehavior : MonoBehaviour
     private void MoveTowards(Vector3 target, float speed)
     {
         float directionX = Mathf.Sign(target.x - transform.position.x);
+
         rb.linearVelocity = new Vector2(directionX * speed, rb.linearVelocity.y);
+
+        // Flip sprite
+        if (directionX != 0)
+        {
+            Vector3 scale = transform.localScale;
+            scale.x = Mathf.Abs(scale.x) * directionX;
+            transform.localScale = scale;
+        }
     }
 
     private void PickNewRoamTarget()
