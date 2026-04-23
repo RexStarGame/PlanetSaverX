@@ -20,8 +20,10 @@ public class EnemyBehavior : MonoBehaviour
     public float roamDelay = 2f;
 
     [Header("Combat Settings")]
-    public int damage = 10;
+    public int playerDamage = 10;
+    public int bombDamage = 25;
     public float attackCooldown = 1f;
+    public float bombAttackCooldown = 0.5f;
 
     [Header("Bomb Settings")]
     public string bombTag = "Bomb";
@@ -30,12 +32,15 @@ public class EnemyBehavior : MonoBehaviour
     private Vector3 roamTarget;
     private float lastRoamTime;
     private float lastAttackTime;
+    private float lastBombAttackTime;
 
     private Collider2D hitbox;
     private HealthBar playerHealth;
+    private Bomb bombScript;
 
     private Rigidbody2D rb;
     private bool playerInHitbox = false;
+    private bool bombInHitbox = false;
     private bool playerOnTop = false;
 
     private bool targetingBomb = false;
@@ -56,11 +61,22 @@ public class EnemyBehavior : MonoBehaviour
         if (hitboxTransform != null)
         {
             hitbox = hitboxTransform.GetComponent<Collider2D>();
+            if (hitbox != null)
+            {
+                Debug.Log("Hitbox found and assigned");
+            }
+            else
+            {
+                Debug.LogError("Hitbox object has no Collider2D component!");
+            }
+        }
+        else
+        {
+            Debug.LogError("No child named 'Hitbox' found. Make sure your enemy has a child object called 'Hitbox' with a Collider2D set to IsTrigger=true");
         }
 
         PickNewRoamTarget();
 
-        // Try to find bomb if it already exists in scene
         FindBomb();
     }
 
@@ -103,20 +119,20 @@ public class EnemyBehavior : MonoBehaviour
         // Set current target and speed
         Transform currentTarget = targetingBomb ? bomb : player;
         float currentSpeed = targetingBomb ? bombMoveSpeed : moveSpeed;
-        float currentStoppingDistance = targetingBomb ? bombStoppingDistance : stoppingDistance;
 
         float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
 
         // Chase or roam
         if (distanceToTarget <= detectionRange)
         {
-            if (distanceToTarget > currentStoppingDistance)
+            if (distanceToTarget > stoppingDistance)
             {
                 Vector3 targetPosition = new Vector3(currentTarget.position.x, transform.position.y, transform.position.z);
                 MoveTowards(targetPosition, currentSpeed);
             }
             else
             {
+                // Stop moving when close enough
                 rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             }
         }
@@ -135,11 +151,34 @@ public class EnemyBehavior : MonoBehaviour
             }
         }
 
-        // Attack player only when not targeting bomb
-        if (!targetingBomb && playerInHitbox && Time.time - lastAttackTime >= attackCooldown)
+        // Attack logic with debug
+        if (targetingBomb)
         {
-            Attack();
-            lastAttackTime = Time.time;
+            if (bombInHitbox)
+            {
+                if (Time.time - lastBombAttackTime >= bombAttackCooldown)
+                {
+                    AttackBomb();
+                    lastBombAttackTime = Time.time;
+                }
+            }
+            else
+            {
+                // Debug to see if we're targeting bomb but not in hitbox
+                if (Time.frameCount % 120 == 0)
+                {
+                    float distToBomb = Vector3.Distance(transform.position, bomb.position);
+                    Debug.Log($"Targeting bomb but not in hitbox. Distance to bomb: {distToBomb:F2}");
+                }
+            }
+        }
+        else
+        {
+            if (playerInHitbox && Time.time - lastAttackTime >= attackCooldown)
+            {
+                AttackPlayer();
+                lastAttackTime = Time.time;
+            }
         }
     }
 
@@ -149,7 +188,30 @@ public class EnemyBehavior : MonoBehaviour
         if (bombObject != null)
         {
             bomb = bombObject.transform;
+            bombScript = bombObject.GetComponent<Bomb>();
             Debug.Log("Enemy found bomb with tag: " + bombTag);
+
+            // Check if bomb has a collider
+            Collider2D bombCollider = bombObject.GetComponent<Collider2D>();
+            if (bombCollider != null)
+            {
+                Debug.Log($"Bomb collider found: {bombCollider.GetType().Name}, IsTrigger: {bombCollider.isTrigger}");
+            }
+            else
+            {
+                Debug.LogError("Bomb has no Collider2D component! Add a Collider2D to the bomb.");
+            }
+        }
+        else
+        {
+            // Try to find bomb by name if tag doesn't work
+            bombObject = GameObject.Find("Bomb");
+            if (bombObject != null)
+            {
+                bomb = bombObject.transform;
+                bombScript = bombObject.GetComponent<Bomb>();
+                Debug.LogWarning("Enemy found bomb by name, but it doesn't have the 'Bomb' tag. Consider adding the tag.");
+            }
         }
     }
 
@@ -168,26 +230,55 @@ public class EnemyBehavior : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        Debug.Log($"Trigger entered with: {other.gameObject.name}, Tag: {other.tag}");
+
         if (other.CompareTag("Player"))
         {
             playerInHitbox = true;
+            Debug.Log("Player entered hitbox");
+        }
+        else if (other.CompareTag("Bomb"))
+        {
+            bombInHitbox = true;
+            Debug.Log("Bomb entered hitbox");
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        Debug.Log($"Trigger exited with: {other.gameObject.name}, Tag: {other.tag}");
+
         if (other.CompareTag("Player"))
         {
             playerInHitbox = false;
+            Debug.Log("Player exited hitbox");
+        }
+        else if (other.CompareTag("Bomb"))
+        {
+            bombInHitbox = false;
+            Debug.Log("Bomb exited hitbox");
         }
     }
 
-    private void Attack()
+    private void AttackPlayer()
     {
         if (playerHealth != null)
         {
-            playerHealth.TakeDamage(damage);
-            Debug.Log("Enemy attacked player for " + damage + " damage!");
+            playerHealth.TakeDamage(playerDamage);
+            Debug.Log("Enemy attacked player for " + playerDamage + " damage!");
+        }
+    }
+
+    private void AttackBomb()
+    {
+        if (bombScript != null)
+        {
+            bombScript.TakeDamage(bombDamage);
+            Debug.Log("Enemy attacked bomb for " + bombDamage + " damage!");
+        }
+        else
+        {
+            Debug.LogError("Bomb script is null! Cannot damage bomb.");
         }
     }
 
