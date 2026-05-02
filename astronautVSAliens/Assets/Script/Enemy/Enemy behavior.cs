@@ -8,10 +8,10 @@ public class EnemyBehavior : MonoBehaviour
 
     [Header("Detection Settings")]
     public float detectionRange = 10f;
-    public float stoppingDistance = 1.5f;
 
     [Header("Distance Settings")]
     public float bombStoppingDistance = 2.5f;
+    public float stoppingDistance = 1.5f;
 
     [Header("Movement Settings")]
     public float moveSpeed = 3f;
@@ -72,7 +72,7 @@ public class EnemyBehavior : MonoBehaviour
         }
         else
         {
-            Debug.LogError("No child named 'Hitbox' found. Make sure your enemy has a child object called 'Hitbox' with a Collider2D set to IsTrigger=true");
+            Debug.LogError("No child named 'Hitbox' found.");
         }
 
         PickNewRoamTarget();
@@ -84,7 +84,7 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (player == null) return;
 
-        // Continuously look for bomb if we don't have one or if it's inactive
+        // Continuously look for bomb if there isnt one or if it's inactive
         if (bomb == null || !bomb.gameObject.activeInHierarchy)
         {
             bombCheckTimer += Time.deltaTime;
@@ -164,7 +164,7 @@ public class EnemyBehavior : MonoBehaviour
             }
             else
             {
-                // Debug to see if we're targeting bomb but not in hitbox
+                // Debug to see if the enemy is targeting the bomb but its not in hitbox
                 if (Time.frameCount % 120 == 0)
                 {
                     float distToBomb = Vector3.Distance(transform.position, bomb.position);
@@ -199,18 +199,18 @@ public class EnemyBehavior : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Bomb has no Collider2D component! Add a Collider2D to the bomb.");
+                Debug.LogError("Bomb has no Collider2D component!");
             }
         }
         else
         {
-            // Try to find bomb by name if tag doesn't work
+            // Finds bomb by name if it couldnt by tag
             bombObject = GameObject.Find("Bomb");
             if (bombObject != null)
             {
                 bomb = bombObject.transform;
                 bombScript = bombObject.GetComponent<Bomb>();
-                Debug.LogWarning("Enemy found bomb by name, but it doesn't have the 'Bomb' tag. Consider adding the tag.");
+                Debug.LogWarning("Enemy found bomb by name");
             }
         }
     }
