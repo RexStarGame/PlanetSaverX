@@ -9662,10 +9662,6 @@ PrefabInstance:
       propertyPath: ammoBar
       value: 
       objectReference: {fileID: 1473886245}
-    - target: {fileID: 3246687577397872036, guid: 2d7c0e7df6c40274ea9031d4017b3d85, type: 3}
-      propertyPath: m_SortingOrder
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 5548046522241915792, guid: 2d7c0e7df6c40274ea9031d4017b3d85, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.31
