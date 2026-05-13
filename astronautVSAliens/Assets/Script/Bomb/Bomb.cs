@@ -23,7 +23,6 @@ public class Bomb : MonoBehaviour
     public float maxHealth = 100f;
     private float currentHealth;
 
-    // Denne image bruges først som planting bar, bagefter som health bar
     public Image healthFillImage;
     public Gradient healthColor;
 
@@ -48,11 +47,11 @@ public class Bomb : MonoBehaviour
         countdownTime = maxCountdownTime;
         currentHealth = maxHealth;
 
-        // Timer UI skjules indtil bomben er armed
+        // vi skujler vores Timer UI skjules indtil bomben er plantet.
         if (timerFillImage != null) timerFillImage.enabled = false;
         if (timerText != null) timerText.enabled = false;
 
-        // Health image er skjult i starten
+        // Vi skujler Health image 
         if (healthFillImage != null) healthFillImage.enabled = false;
 
         UpdateTimerVisuals();
@@ -94,7 +93,7 @@ public class Bomb : MonoBehaviour
             spriteRenderer.sprite = activeBombSprite;
         }
 
-        // Countdown bliver synlig nu
+        // her sætter vi countdown til at være synlig
         if (timerFillImage != null) timerFillImage.enabled = true;
         if (timerText != null) timerText.enabled = true;
 
@@ -103,8 +102,6 @@ public class Bomb : MonoBehaviour
 
         UpdateTimerVisuals();
         UpdateHealthBarVisuals();
-
-        Debug.Log("Bomb armed: countdown og health bar burde nu være synlige.");
     }
 
     private void UpdateTimerVisuals()

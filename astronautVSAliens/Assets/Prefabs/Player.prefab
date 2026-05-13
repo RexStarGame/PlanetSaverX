@@ -122,7 +122,6 @@ GameObject:
   - component: {fileID: 6477172548128645344}
   - component: {fileID: 8015958712437803944}
   - component: {fileID: 4646389314549709625}
-  - component: {fileID: 6447560136981726596}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -189,7 +188,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: -3126642491983013943, guid: a5a19e660ae57e84e806649fab4f689e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -306,21 +305,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timeToPlant: 3
   bombPrefab: {fileID: 3072784869890908965, guid: 80ae17d1ef047364ab3902936496dd3a, type: 3}
---- !u!114 &6447560136981726596
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6419878730832501831}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56ba80c81e875624e9ed91dcd3db1cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  plantingFillImage: {fileID: 0}
-  plantingBackgroundImage: {fileID: 0}
-  countdownTextToHide: {fileID: 0}
 --- !u!1 &6850821033528490481
 GameObject:
   m_ObjectHideFlags: 0

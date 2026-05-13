@@ -32,14 +32,12 @@ public class Gun : MonoBehaviour
     {
         if (isReloading) return;
 
-        // Auto-reload tjek
         if (currentAmmo < maxAmmo && Time.time >= lastShotTime + autoReloadDelay && !Input.GetMouseButton(0))
         {
             StartCoroutine(Reload());
             return;
         }
 
-        // Skyde-logik
         if (Input.GetMouseButton(0) && Time.time >= nextFireTime)
         {
             if (currentAmmo > 0)
@@ -77,7 +75,6 @@ public class Gun : MonoBehaviour
     {
         isReloading = true;
 
-        // Gør UI-bjælken lidt gennemsigtig
         if (ammoBar != null)
         {
             Color tempColor = ammoBar.color;
@@ -85,30 +82,24 @@ public class Gun : MonoBehaviour
             ammoBar.color = tempColor;
         }
 
-        // --- SMOOTH RELOAD LOGIK ---
         float reloadTimer = 0f;
-        // Gemmer hvor bjælken var, da vi startede med at reloade
+
         float startFillAmount = ammoBar != null ? ammoBar.fillAmount : 0f;
 
-        // Kør denne løkke indtil timer-en når vores fastsatte reloadTime
         while (reloadTimer < reloadTime)
         {
-            reloadTimer += Time.deltaTime; // Læg tiden for én frame til
+            reloadTimer += Time.deltaTime; 
 
             if (ammoBar != null)
             {
-                // Lerp udregner en blød overgang fra startFillAmount til 1 (100%) baseret på tiden
                 ammoBar.fillAmount = Mathf.Lerp(startFillAmount, 1f, reloadTimer / reloadTime);
             }
 
-            yield return null; // VIGTIGT: Vent til næste frame, før vi opdaterer igen
+            yield return null;
         }
-
-        // Sørg for, at værdierne er helt præcise, når løkken slutter
         currentAmmo = maxAmmo;
-        UpdateAmmoUI(); // Sætter bjælken til præcis 100%
+        UpdateAmmoUI();
 
-        // Gør UI-bjælken fuldt synlig igen
         if (ammoBar != null)
         {
             Color tempColor = ammoBar.color;
